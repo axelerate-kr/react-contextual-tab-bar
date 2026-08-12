@@ -1,0 +1,373 @@
+/* react-contextual-tab-bar — all visuals live here, override the tokens to retheme. */
+
+.ctb-root {
+  /* surface */
+  --ctb-surface: rgba(24, 26, 29, 0.78);
+  --ctb-surface-opaque: #191b1e;
+  --ctb-border: rgba(255, 255, 255, 0.07);
+  --ctb-shadow: 0 6px 24px rgba(0, 0, 0, 0.32);
+  /* content */
+  --ctb-fg: #f2f4f6;
+  --ctb-fg-muted: #8b95a1;
+  --ctb-chip: rgba(255, 255, 255, 0.09);
+  --ctb-press: rgba(255, 255, 255, 0.13);
+  --ctb-accent: #3182f6;
+  /* geometry */
+  --ctb-radius: 26px;
+  --ctb-height: 60px;
+  --ctb-inset: 12px;
+  --ctb-icon-size: 24px;
+  /* motion — durations are set from props, curves are yours to change */
+  --ctb-duration: 190ms;
+  --ctb-stagger: 24ms;
+  --ctb-exit-duration: 140ms;
+  --ctb-ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ctb-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  box-sizing: border-box;
+  pointer-events: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ctb-root *,
+.ctb-root *::before,
+.ctb-root *::after {
+  box-sizing: border-box;
+}
+
+.ctb-root[data-theme='light'],
+.ctb-root[data-theme='light'] * {
+  --ctb-surface: rgba(255, 255, 255, 0.82);
+  --ctb-surface-opaque: #ffffff;
+  --ctb-border: rgba(0, 0, 0, 0.06);
+  --ctb-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  --ctb-fg: #191f28;
+  --ctb-fg-muted: #8b95a1;
+  --ctb-chip: rgba(0, 0, 0, 0.06);
+  --ctb-press: rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: light) {
+  .ctb-root:not([data-theme='dark']) {
+    --ctb-surface: rgba(255, 255, 255, 0.82);
+    --ctb-surface-opaque: #ffffff;
+    --ctb-border: rgba(0, 0, 0, 0.06);
+    --ctb-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+    --ctb-fg: #191f28;
+    --ctb-fg-muted: #8b95a1;
+    --ctb-chip: rgba(0, 0, 0, 0.06);
+    --ctb-press: rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* ---------- placement ---------- */
+
+.ctb-root[data-fixed] {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.ctb-root[data-variant='floating'] {
+  padding: 0 var(--ctb-inset)
+    calc(var(--ctb-inset) + env(safe-area-inset-bottom, 0px));
+}
+
+.ctb-root[data-variant='docked'] {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ---------- bar ---------- */
+
+.ctb-bar {
+  position: relative;
+  pointer-events: auto;
+  overflow: hidden;
+  background: var(--ctb-surface);
+  border: 1px solid var(--ctb-border);
+  box-shadow: var(--ctb-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+}
+
+.ctb-root[data-variant='floating'] .ctb-bar {
+  border-radius: var(--ctb-radius);
+}
+
+.ctb-root[data-variant='docked'] .ctb-bar {
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ctb-bar {
+    background: var(--ctb-surface-opaque);
+  }
+}
+
+/* ---------- rows ---------- */
+
+.ctb-layer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--ctb-height);
+  padding: 0 6px;
+}
+
+/* The leaving row keeps its own layout while it fades, so both rows are
+   briefly visible at different positions — that overlap is the effect. */
+.ctb-layer[data-exit] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: ctb-row-out var(--ctb-exit-duration) var(--ctb-ease-exit) forwards;
+}
+
+.ctb-layer[data-enter] .ctb-item {
+  animation: ctb-item-in var(--ctb-duration) var(--ctb-ease-enter) backwards;
+  animation-delay: calc(var(--ctb-i, 0) * var(--ctb-stagger));
+}
+
+@keyframes ctb-item-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ctb-row-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+/* ---------- items ---------- */
+
+.ctb-item {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin: 0;
+  padding: 8px 2px;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: var(--ctb-fg-muted);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: color 160ms ease;
+}
+
+.ctb-item[data-active] {
+  color: var(--ctb-fg);
+}
+
+.ctb-item:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* Items in the leaving row are disabled for a11y, not dimmed — the row's own
+   animation owns their opacity, so it can fade from full brightness. */
+.ctb-layer[data-exit] .ctb-item:disabled {
+  opacity: 1;
+}
+
+.ctb-item:focus-visible {
+  outline: 2px solid var(--ctb-accent);
+  outline-offset: -2px;
+}
+
+.ctb-back {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  margin-right: 4px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--ctb-chip);
+  color: var(--ctb-fg);
+  transition: transform 180ms var(--ctb-ease-enter), background-color 160ms ease;
+}
+
+.ctb-back:active {
+  transform: scale(0.94);
+}
+
+/* ---------- icon ---------- */
+
+.ctb-icon {
+  position: relative;
+  width: var(--ctb-icon-size);
+  height: var(--ctb-icon-size);
+  display: grid;
+  place-items: center;
+  transition: transform 180ms var(--ctb-ease-enter);
+}
+
+.ctb-icon::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 999px;
+  background: var(--ctb-press);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 130ms ease, transform 180ms var(--ctb-ease-enter);
+}
+
+.ctb-item:not(:disabled):active .ctb-icon::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ctb-item:not(:disabled):active .ctb-icon {
+  transform: scale(0.9);
+}
+
+.ctb-back .ctb-icon::before {
+  display: none;
+}
+
+.ctb-icon svg,
+.ctb-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ctb-icon-base,
+.ctb-icon-active {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity 170ms var(--ctb-ease-enter);
+}
+
+.ctb-icon-active {
+  opacity: 0;
+}
+
+/* Only swap when the item actually supplies both variants. */
+.ctb-item[data-active] .ctb-icon[data-dual] .ctb-icon-base {
+  opacity: 0;
+}
+
+.ctb-item[data-active] .ctb-icon-active {
+  opacity: 1;
+}
+
+/* ---------- label ---------- */
+
+.ctb-label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ctb-item[data-active] .ctb-label {
+  font-weight: 700;
+}
+
+/* ---------- badge ---------- */
+
+.ctb-badge {
+  position: absolute;
+  top: -4px;
+  left: 58%;
+  display: grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ctb-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ctb-badge[data-dot] {
+  top: -1px;
+  left: 64%;
+  min-width: 6px;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+}
+
+/* ---------- a11y ---------- */
+
+.ctb-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .ctb-item:not(:disabled):hover {
+    color: var(--ctb-fg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctb-layer[data-enter] .ctb-item {
+    animation-name: ctb-fade-in;
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .ctb-layer[data-exit] {
+    animation-duration: 1ms;
+  }
+  .ctb-item,
+  .ctb-back,
+  .ctb-icon,
+  .ctb-icon::before,
+  .ctb-icon-base,
+  .ctb-icon-active {
+    transition-duration: 1ms;
+  }
+}
+
+@keyframes ctb-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
