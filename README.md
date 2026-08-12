@@ -39,21 +39,21 @@ Giving a tab an `items` array is the whole opt-in: tapping it pushes a level ins
 
 ```tsx
 const items = [
-  { id: 'home',    label: 'Home',     icon: <Home />, activeIcon: <Home filled /> },
-  { id: 'benefit', label: 'Benefits', icon: <Gift />, badge: true },
+  { id: 'home',  label: 'Home',  icon: <Home />, activeIcon: <Home filled /> },
+  { id: 'radio', label: 'Radio', icon: <Broadcast /> },
   {
-    id: 'stocks',
-    label: 'Stocks',
-    icon: <Chart />,
-    activeIcon: <Chart filled />,
+    id: 'library',
+    label: 'Library',
+    icon: <Grid />,
+    activeIcon: <Grid filled />,
     items: [
-      { id: 'stocks.home',     label: 'Stocks',    icon: <Chart /> },
-      { id: 'stocks.watch',    label: 'Watchlist', icon: <Heart /> },
-      { id: 'stocks.discover', label: 'Discover',  icon: <Planet /> },
-      { id: 'stocks.feed',     label: 'Feed',      icon: <Chat /> },
+      { id: 'library.home',    label: 'Library', icon: <Grid /> },
+      { id: 'library.songs',   label: 'Songs',   icon: <Playlist /> },
+      { id: 'library.artists', label: 'Artists', icon: <Mic /> },
+      { id: 'library.offline', label: 'Offline', icon: <Download />, badge: 3 },
     ],
   },
-  { id: 'more', label: 'More', icon: <Menu /> },
+  { id: 'profile', label: 'Profile', icon: <Person /> },
 ]
 
 function App() {

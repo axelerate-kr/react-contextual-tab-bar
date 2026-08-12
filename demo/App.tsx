@@ -1,33 +1,35 @@
 import { useMemo, useState } from 'react'
 import { ContextualTabBar, type ChangeMeta, type TabItem } from '../src'
 import {
-  All,
-  Benefit,
-  Discover,
-  Feed,
-  Heart,
+  Broadcast,
+  Chart,
+  Compass,
+  Download,
+  Grid,
   Home,
-  Shop,
-  Stock,
+  Mic,
+  Person,
+  Playlist,
+  Sparkle,
   Tag,
-  Truck,
 } from './icons'
 
 type Lang = 'ko' | 'en'
 
 const L: Record<string, Record<Lang, string>> = {
   home: { ko: '홈', en: 'Home' },
-  benefit: { ko: '혜택', en: 'Benefits' },
-  shop: { ko: '쇼핑', en: 'Shop' },
-  stock: { ko: '증권', en: 'Stocks' },
-  all: { ko: '전체', en: 'More' },
-  'stock.home': { ko: '증권', en: 'Stocks' },
-  'stock.watch': { ko: '관심', en: 'Watchlist' },
-  'stock.discover': { ko: '발견', en: 'Discover' },
-  'stock.feed': { ko: '피드', en: 'Feed' },
-  'shop.home': { ko: '쇼핑', en: 'Shop' },
-  'shop.deal': { ko: '특가', en: 'Deals' },
-  'shop.order': { ko: '주문', en: 'Orders' },
+  browse: { ko: '탐색', en: 'Browse' },
+  radio: { ko: '라디오', en: 'Radio' },
+  library: { ko: '보관함', en: 'Library' },
+  profile: { ko: '프로필', en: 'Profile' },
+  'browse.home': { ko: '탐색', en: 'Browse' },
+  'browse.charts': { ko: '차트', en: 'Charts' },
+  'browse.genres': { ko: '장르', en: 'Genres' },
+  'browse.new': { ko: '최신', en: 'New' },
+  'library.home': { ko: '보관함', en: 'Library' },
+  'library.songs': { ko: '곡', en: 'Songs' },
+  'library.artists': { ko: '아티스트', en: 'Artists' },
+  'library.offline': { ko: '오프라인', en: 'Offline' },
 }
 
 function buildItems(lang: Lang): TabItem[] {
@@ -35,132 +37,238 @@ function buildItems(lang: Lang): TabItem[] {
   return [
     { id: 'home', label: t('home'), icon: <Home />, activeIcon: <Home filled /> },
     {
-      id: 'benefit',
-      label: t('benefit'),
-      icon: <Benefit />,
-      activeIcon: <Benefit filled />,
-      badge: true,
-    },
-    {
-      id: 'shop',
-      label: t('shop'),
-      icon: <Shop />,
-      activeIcon: <Shop filled />,
+      id: 'browse',
+      label: t('browse'),
+      icon: <Compass />,
+      activeIcon: <Compass filled />,
       items: [
-        { id: 'shop.home', label: t('shop.home'), icon: <Shop />, activeIcon: <Shop filled /> },
-        { id: 'shop.deal', label: t('shop.deal'), icon: <Tag />, activeIcon: <Tag filled /> },
         {
-          id: 'shop.order',
-          label: t('shop.order'),
-          icon: <Truck />,
-          activeIcon: <Truck filled />,
-          badge: 2,
+          id: 'browse.home',
+          label: t('browse.home'),
+          icon: <Compass />,
+          activeIcon: <Compass filled />,
+        },
+        {
+          id: 'browse.charts',
+          label: t('browse.charts'),
+          icon: <Chart />,
+          activeIcon: <Chart filled />,
+        },
+        { id: 'browse.genres', label: t('browse.genres'), icon: <Tag />, activeIcon: <Tag filled /> },
+        {
+          id: 'browse.new',
+          label: t('browse.new'),
+          icon: <Sparkle />,
+          activeIcon: <Sparkle filled />,
+          badge: true,
         },
       ],
     },
+    { id: 'radio', label: t('radio'), icon: <Broadcast />, activeIcon: <Broadcast filled /> },
     {
-      id: 'stock',
-      label: t('stock'),
-      icon: <Stock />,
-      activeIcon: <Stock filled />,
+      id: 'library',
+      label: t('library'),
+      icon: <Grid />,
+      activeIcon: <Grid filled />,
       items: [
-        { id: 'stock.home', label: t('stock.home'), icon: <Stock />, activeIcon: <Stock filled /> },
+        { id: 'library.home', label: t('library.home'), icon: <Grid />, activeIcon: <Grid filled /> },
         {
-          id: 'stock.watch',
-          label: t('stock.watch'),
-          icon: <Heart />,
-          activeIcon: <Heart filled />,
+          id: 'library.songs',
+          label: t('library.songs'),
+          icon: <Playlist />,
+          activeIcon: <Playlist filled />,
         },
         {
-          id: 'stock.discover',
-          label: t('stock.discover'),
-          icon: <Discover />,
-          activeIcon: <Discover filled />,
+          id: 'library.artists',
+          label: t('library.artists'),
+          icon: <Mic />,
+          activeIcon: <Mic filled />,
         },
-        { id: 'stock.feed', label: t('stock.feed'), icon: <Feed />, activeIcon: <Feed filled /> },
+        {
+          id: 'library.offline',
+          label: t('library.offline'),
+          icon: <Download />,
+          activeIcon: <Download filled />,
+          badge: 3,
+        },
       ],
     },
-    { id: 'all', label: t('all'), icon: <All />, activeIcon: <All filled /> },
+    { id: 'profile', label: t('profile'), icon: <Person />, activeIcon: <Person filled /> },
   ]
 }
 
-const SCREENS: Record<string, { title: Record<Lang, string>; rows: [string, string][] }> = {
+type Row = [string, string]
+
+interface Screen {
+  title: Record<Lang, string>
+  rows: Record<Lang, Row[]>
+}
+
+const SCREENS: Record<string, Screen> = {
   home: {
-    title: { ko: '내 자산', en: 'My assets' },
-    rows: [
-      ['토스뱅크 통장', '2,481,300원'],
-      ['적립 포인트', '12,905원'],
-      ['내 신용점수', '891점'],
-      ['대출 한도', '조회하기'],
-    ],
+    title: { ko: '최근 재생', en: 'Recently played' },
+    rows: {
+      ko: [
+        ['Midnight Drive', '앨범'],
+        ['Slow Static', '재생목록'],
+        ['Paper Lanterns', '싱글'],
+        ['Nightjar', '앨범'],
+      ],
+      en: [
+        ['Midnight Drive', 'Album'],
+        ['Slow Static', 'Playlist'],
+        ['Paper Lanterns', 'Single'],
+        ['Nightjar', 'Album'],
+      ],
+    },
   },
-  benefit: {
-    title: { ko: '오늘의 혜택', en: "Today's benefits" },
-    rows: [
-      ['만보기', '+40원'],
-      ['행운 퀴즈', '참여하기'],
-      ['친구 초대', '최대 30,000원'],
-    ],
+  'browse.home': {
+    title: { ko: '탐색', en: 'Browse' },
+    rows: {
+      ko: [
+        ['새 앨범', '24개'],
+        ['맞춤 추천', '6개'],
+        ['라이브 세션', '12개'],
+      ],
+      en: [
+        ['New releases', '24'],
+        ['Made for you', '6'],
+        ['Live sessions', '12'],
+      ],
+    },
   },
-  'shop.home': {
-    title: { ko: '쇼핑 홈', en: 'Shop home' },
-    rows: [
-      ['오늘의 특가', '최대 62%'],
-      ['무료배송관', '3,912개'],
-      ['최근 본 상품', '12개'],
-    ],
+  'browse.charts': {
+    title: { ko: '인기 차트', en: 'Top charts' },
+    rows: {
+      ko: [
+        ['1   Undertow', '+4'],
+        ['2   Paper Lanterns', '−1'],
+        ['3   Nightjar', '+12'],
+      ],
+      en: [
+        ['1   Undertow', '+4'],
+        ['2   Paper Lanterns', '−1'],
+        ['3   Nightjar', '+12'],
+      ],
+    },
   },
-  'shop.deal': {
-    title: { ko: '특가', en: 'Deals' },
-    rows: [
-      ['타임딜', '02:41:08 남음'],
-      ['1+1 기획전', '보러가기'],
-    ],
+  'browse.genres': {
+    title: { ko: '장르', en: 'Genres' },
+    rows: {
+      ko: [
+        ['앰비언트', '312개'],
+        ['포스트록', '188개'],
+        ['재즈', '940개'],
+      ],
+      en: [
+        ['Ambient', '312'],
+        ['Post-rock', '188'],
+        ['Jazz', '940'],
+      ],
+    },
   },
-  'shop.order': {
-    title: { ko: '주문 내역', en: 'Orders' },
-    rows: [
-      ['배송중', '2건'],
-      ['배송완료', '17건'],
-    ],
+  'browse.new': {
+    title: { ko: '이번 주 신곡', en: 'New this week' },
+    rows: {
+      ko: [
+        ['Glasshouse', '금요일'],
+        ['Tidal Bloom', '수요일'],
+      ],
+      en: [
+        ['Glasshouse', 'Friday'],
+        ['Tidal Bloom', 'Wednesday'],
+      ],
+    },
   },
-  'stock.home': {
-    title: { ko: '내 투자', en: 'My investments' },
-    rows: [
-      ['스페이스X', '-3.4%'],
-      ['NVD', '-5.8%'],
-      ['알파벳 A', '+6.7%'],
-      ['마이크로소프트', '+3.0%'],
-    ],
+  radio: {
+    title: { ko: '라디오', en: 'Radio' },
+    rows: {
+      ko: [
+        ['앰비언트 스테이션', '재생 중'],
+        ['드라이브 믹스', '추천'],
+        ['집중 모드', '새로움'],
+      ],
+      en: [
+        ['Ambient station', 'Playing'],
+        ['Drive mix', 'Suggested'],
+        ['Focus mode', 'New'],
+      ],
+    },
   },
-  'stock.watch': {
-    title: { ko: '관심 종목', en: 'Watchlist' },
-    rows: [
-      ['테슬라', '+1.2%'],
-      ['애플', '-0.4%'],
-    ],
+  'library.home': {
+    title: { ko: '보관함', en: 'Your library' },
+    rows: {
+      ko: [
+        ['재생목록', '24개'],
+        ['앨범', '61개'],
+        ['아티스트', '138명'],
+      ],
+      en: [
+        ['Playlists', '24'],
+        ['Albums', '61'],
+        ['Artists', '138'],
+      ],
+    },
   },
-  'stock.discover': {
-    title: { ko: '발견', en: 'Discover' },
-    rows: [
-      ['거래량 급등', '실시간'],
-      ['많이 본 종목', 'TOP 100'],
-    ],
+  'library.songs': {
+    title: { ko: '내 재생목록', en: 'Your playlists' },
+    rows: {
+      ko: [
+        ['늦은 밤 운전', '42곡'],
+        ['비 오는 창가', '18곡'],
+        ['집중', '67곡'],
+      ],
+      en: [
+        ['Late night drive', '42 tracks'],
+        ['Rain on glass', '18 tracks'],
+        ['Deep focus', '67 tracks'],
+      ],
+    },
   },
-  'stock.feed': {
-    title: { ko: '피드', en: 'Feed' },
-    rows: [
-      ['오늘의 시장', '3분 전'],
-      ['실적 발표 캘린더', '이번 주'],
-    ],
+  'library.artists': {
+    title: { ko: '아티스트', en: 'Artists' },
+    rows: {
+      ko: [
+        ['Halcyon Field', '팔로잉'],
+        ['Coastal Signals', '팔로잉'],
+        ['Wren & Ash', '팔로잉'],
+      ],
+      en: [
+        ['Halcyon Field', 'Following'],
+        ['Coastal Signals', 'Following'],
+        ['Wren & Ash', 'Following'],
+      ],
+    },
   },
-  all: {
-    title: { ko: '전체', en: 'More' },
-    rows: [
-      ['내 자산', '계좌 · 대출 · 증권'],
-      ['대출 받기', '신용 · 주택'],
-      ['모바일 요금제', 'KT · SKT · U+'],
-    ],
+  'library.offline': {
+    title: { ko: '오프라인 저장', en: 'Saved offline' },
+    rows: {
+      ko: [
+        ['Midnight Drive', '완료'],
+        ['Nightjar', '완료'],
+        ['Tidal Bloom', '받는 중'],
+      ],
+      en: [
+        ['Midnight Drive', 'Done'],
+        ['Nightjar', 'Done'],
+        ['Tidal Bloom', 'Downloading'],
+      ],
+    },
+  },
+  profile: {
+    title: { ko: '프로필', en: 'Profile' },
+    rows: {
+      ko: [
+        ['음질', '매우 높음'],
+        ['Wi-Fi에서만 다운로드', '켜짐'],
+        ['재생 기록', '보기'],
+      ],
+      en: [
+        ['Audio quality', 'Very high'],
+        ['Download over Wi-Fi only', 'On'],
+        ['Listening history', 'View'],
+      ],
+    },
   },
 }
 
@@ -170,7 +278,7 @@ interface LogEntry {
 }
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('ko')
+  const [lang, setLang] = useState<Lang>('en')
   const [theme, setTheme] = useState<'auto' | 'dark' | 'light'>('dark')
   const [variant, setVariant] = useState<'floating' | 'docked'>('floating')
   const [duration, setDuration] = useState(190)
@@ -205,11 +313,9 @@ export default function App() {
         <p className="lede">
           A bottom tab bar whose items <strong>swap into a sub-set</strong> when you enter a
           section, with a back affordance in the first slot. The two rows cross-fade at their own
-          layouts while the incoming icons stagger in from the leading edge — the pattern{' '}
-          <a href="https://toss.im" target="_blank" rel="noreferrer">
-            Toss
-          </a>{' '}
-          uses, which no existing tab-bar library ships.
+          layouts while the incoming icons stagger in from the leading edge. Every animated tab-bar
+          library moves the <em>indicator</em> inside a fixed set of tabs — none of them change
+          which tabs exist.
         </p>
         <div className="cta">
           <code>npm i react-contextual-tab-bar</code>
@@ -223,7 +329,7 @@ export default function App() {
           </a>
         </div>
         <p className="hint">
-          Tap <strong>{L.stock[lang]}</strong> or <strong>{L.shop[lang]}</strong> in the phone —
+          Tap <strong>{L.browse[lang]}</strong> or <strong>{L.library[lang]}</strong> in the phone —
           those two have sub-levels.
         </p>
       </header>
@@ -234,13 +340,13 @@ export default function App() {
           <div className="screen">
             <div className="content">
               <h2>{screen.title[lang]}</h2>
-              {screen.rows.map(([label, meta]) => (
+              {screen.rows[lang].map(([label, meta]) => (
                 <div className="row" key={label}>
                   <span>{label}</span>
                   <span className="meta">{meta}</span>
                 </div>
               ))}
-              {screen.rows.map(([label], index) => (
+              {screen.rows[lang].map(([label], index) => (
                 <div className="row skeleton" key={`${label}-skeleton-${index}`}>
                   <span className="bar w-60" />
                   <span className="bar w-20" />
@@ -327,7 +433,7 @@ export default function App() {
             />
             <Choice
               label="labels"
-              options={['ko', 'en']}
+              options={['en', 'ko']}
               value={lang}
               onChange={(next) => setLang(next as Lang)}
             />
@@ -371,14 +477,19 @@ export default function App() {
       </section>
 
       <footer>
-        MIT · pattern observed in the Toss app, implementation independent ·{' '}
+        MIT ·{' '}
         <a
           href="https://github.com/axelerate-kr/react-contextual-tab-bar"
           target="_blank"
           rel="noreferrer"
         >
           source
-        </a>
+        </a>{' '}
+        · the interaction pattern is one the{' '}
+        <a href="https://toss.im" target="_blank" rel="noreferrer">
+          Toss
+        </a>{' '}
+        app popularised; this implementation is independent and unaffiliated
       </footer>
     </div>
   )
@@ -388,17 +499,17 @@ const USAGE = `import { ContextualTabBar } from 'react-contextual-tab-bar'
 import 'react-contextual-tab-bar/styles.css'
 
 const items = [
-  { id: 'home',    label: 'Home',     icon: <Home />,    activeIcon: <Home filled /> },
-  { id: 'benefit', label: 'Benefits', icon: <Gift />,    badge: true },
-  { id: 'stock',   label: 'Stocks',   icon: <Chart />,
+  { id: 'home',  label: 'Home',  icon: <Home />,    activeIcon: <Home filled /> },
+  { id: 'radio', label: 'Radio', icon: <Broadcast /> },
+  { id: 'library', label: 'Library', icon: <Grid />,
     // giving a tab \`items\` is what makes the bar swap
     items: [
-      { id: 'stock.home',     label: 'Stocks',    icon: <Chart /> },
-      { id: 'stock.watch',    label: 'Watchlist', icon: <Heart /> },
-      { id: 'stock.discover', label: 'Discover',  icon: <Planet /> },
-      { id: 'stock.feed',     label: 'Feed',      icon: <Chat /> },
+      { id: 'library.home',    label: 'Library', icon: <Grid /> },
+      { id: 'library.songs',   label: 'Songs',   icon: <Playlist /> },
+      { id: 'library.artists', label: 'Artists', icon: <Mic /> },
+      { id: 'library.offline', label: 'Offline', icon: <Download />, badge: 3 },
     ] },
-  { id: 'more',    label: 'More',     icon: <Menu /> },
+  { id: 'profile', label: 'Profile', icon: <Person /> },
 ]
 
 <ContextualTabBar

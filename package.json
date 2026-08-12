@@ -11,8 +11,9 @@
     "navigation",
     "contextual-navigation",
     "nested-tabs",
+    "sub-tabs",
+    "drilldown",
     "animation",
-    "toss",
     "mobile",
     "pwa"
   ],
