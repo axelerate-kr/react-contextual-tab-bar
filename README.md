@@ -1,48 +1,57 @@
+<div align="center">
+
 # react-contextual-tab-bar
 
-**A Toss-style bottom navigation bar for React.** Tapping a tab swaps the whole bar into that
-section's own tabs, with a back arrow where the first tab used to be. Zero runtime dependencies,
-~4.5 kB gzipped (JS + CSS).
+**A Toss-style bottom navigation bar for React.**<br />
+Tap a tab and the whole bar swaps into that section's own tabs, with a back arrow
+where the first tab used to be.
 
-[한국어 README →](README_ko.md)
+**English** · [한국어](README_ko.md)
 
-<img src="docs/demo.gif" width="400" alt="Tapping Library replaces the five root tabs with that section's own four and puts a back arrow in the first slot; tapping back restores the root row with Library still selected" />
+[![npm](https://img.shields.io/npm/v/react-contextual-tab-bar?style=flat-square&color=3182f6&label=npm)](https://www.npmjs.com/package/react-contextual-tab-bar)
+[![bundle](https://img.shields.io/badge/gzipped-4.5%20kB-3182f6?style=flat-square)](https://bundlejs.com/?q=react-contextual-tab-bar)
+[![dependencies](https://img.shields.io/badge/dependencies-0-3182f6?style=flat-square)](package.json)
+[![license](https://img.shields.io/badge/license-Apache--2.0-3182f6?style=flat-square)](LICENSE)
+
+<img src="docs/demo.gif" width="380" alt="Tapping Library replaces the five root tabs with that section's own four and puts a back arrow in the first slot; tapping back restores the root row with Library still selected" />
 
 Recorded at real speed — the swap takes about 240 ms end to end.
 
-**[Live demo →](https://axelerate-kr.github.io/react-contextual-tab-bar/)**
+### [**Open the live demo →**](https://axelerate-kr.github.io/react-contextual-tab-bar/)
+
+</div>
 
 ## Why this exists
 
-Every animated tab-bar library animates the *indicator* inside a fixed set of tabs —
-[`react-native-animated-nav-tab-bar`](https://github.com/torgeadelin/react-native-animated-nav-tab-bar),
-[`rn-wave-bottom-bar`](https://github.com/darkhorse-coder/rn-wave-bottom-bar),
-[`morph-bottom-navigation`](https://github.com/tommybuonomo/morph-bottom-navigation),
-React Navigation's `animation: 'fade' | 'shift'`, Material's `BottomNavigation`.
+Every animated tab-bar library moves the *indicator* inside a fixed set of tabs. None of them
+change which tabs exist.
 
-None of them change *which tabs exist*. The pattern where entering a section replaces the whole row
-with that section's own tabs — and puts a back arrow where the first tab used to be — isn't in
-Material 3, isn't in the iOS HIG, and isn't in any tab-bar package I could find. It comes from the
-[Toss](https://toss.im) app, whose design system isn't open source.
+| | what animates | swaps which tabs exist |
+| --- | --- | :---: |
+| [`react-native-animated-nav-tab-bar`](https://github.com/torgeadelin/react-native-animated-nav-tab-bar) | the selected pill | — |
+| [`rn-wave-bottom-bar`](https://github.com/darkhorse-coder/rn-wave-bottom-bar) | a wave behind the selection | — |
+| [`morph-bottom-navigation`](https://github.com/tommybuonomo/morph-bottom-navigation) | a morph over the selected item | — |
+| [React Navigation `bottom-tabs`](https://reactnavigation.org/docs/bottom-tab-navigator/) | the screen (`fade` / `shift`) | — |
+| Material 3 `BottomNavigation` | the indicator | — |
+| **`react-contextual-tab-bar`** | **the whole row** | **yes** |
 
-This is an independent implementation of that pattern for the web.
+The pattern where entering a section replaces the whole row with that section's own tabs — and puts
+a back arrow where the first tab used to be — isn't in Material 3, isn't in the iOS HIG, and isn't
+in any tab-bar package I could find. It comes from the [Toss](https://toss.im) app, whose design
+system isn't open source. This is an independent implementation of that pattern for the web.
 
-## Install
+## Quick start
 
 ```sh
 npm i react-contextual-tab-bar
 ```
 
-```tsx
-import { ContextualTabBar } from 'react-contextual-tab-bar'
-import 'react-contextual-tab-bar/styles.css'
-```
-
-## Usage
-
 Giving a tab an `items` array is the whole opt-in: tapping it pushes a level instead of selecting it.
 
 ```tsx
+import { ContextualTabBar } from 'react-contextual-tab-bar'
+import 'react-contextual-tab-bar/styles.css'
+
 const items = [
   { id: 'home',  label: 'Home',  icon: <Home />, activeIcon: <Home filled /> },
   { id: 'radio', label: 'Radio', icon: <Broadcast /> },
@@ -61,7 +70,7 @@ const items = [
   { id: 'profile', label: 'Profile', icon: <Person /> },
 ]
 
-function App() {
+export function App() {
   const [value, setValue] = useState('home')
 
   return (
@@ -69,16 +78,16 @@ function App() {
       items={items}
       value={value}
       onChange={(id) => setValue(id)}
-      onEnterSub={(id) => analytics.track('tab_section_enter', { id })}
-      onBack={(id) => analytics.track('tab_section_exit', { id })}
+      onEnterSub={(id) => router.push(`/${id}`)}
+      onBack={() => router.back()}
     />
   )
 }
 ```
 
 `value` / `onChange` and `path` / `onPathChange` are both optional — omit them and the component
-keeps the state itself (`defaultValue`, `defaultPath`). Control `path` when the level should be
-derived from your router.
+keeps the state itself (`defaultValue`, `defaultPath`). Control `path` when the level should come
+from your router.
 
 `onChange` fires for every active-tab change and tells you why:
 
@@ -88,7 +97,7 @@ derived from your router.
 | `'enter'` | a tab with `items` was tapped; the first child became active |
 | `'back'` | the level was left; the parent tab became active again |
 
-## The transition
+## How the swap works
 
 <img src="docs/transition.png" width="360" alt="Six frames of the swap: the back chip and first item fade in over the dimming previous row" />
 
@@ -99,16 +108,16 @@ different rows are visible at two different layouts. That overlap is the effect.
 
 | prop | default | what it controls |
 | --- | --- | --- |
-| `duration` | `190` | enter animation per item (ms) |
-| `stagger` | `24` | delay added per item, leading edge first (ms) |
-| `exitDuration` | `140` | outgoing row fade (ms) |
+| `duration` | `190` | how long one icon takes to appear (ms) |
+| `stagger` | `24` | the gap between icons appearing, one after another (ms) |
+| `exitDuration` | `140` | how long the previous icons take to disappear (ms) |
 
 Total ≈ `stagger × (items − 1) + duration`. Direction matters: going deeper staggers left → right,
 going back staggers right → left, so the motion follows the gesture.
 
 `prefers-reduced-motion: reduce` collapses the whole thing to a plain fade with no stagger.
 
-## Props
+## API
 
 | prop | type | default | |
 | --- | --- | --- | --- |
@@ -121,11 +130,11 @@ going back staggers right → left, so the motion follows the gesture.
 | `onPathChange` | `(path) => void` | — | level changed |
 | `onEnterSub` | `(id, item) => void` | — | a tab with `items` was tapped |
 | `onBack` | `(id, path) => void` | — | a level was left |
-| `variant` | `'floating' \| 'docked'` | `'floating'` | side margins and radius, or full width |
+| `variant` | `'floating' \| 'docked'` | `'floating'` | inset and rounded, or full width |
 | `theme` | `'dark' \| 'light' \| 'auto'` | `'auto'` | `auto` follows `prefers-color-scheme` |
 | `fixed` | `boolean` | `true` | `position: fixed` at the bottom of the viewport |
 | `backIcon` | `ReactNode` | arrow-left | |
-| `backLabel` | `string` | `'Back'` | `aria-label` for the back affordance |
+| `backLabel` | `string` | `'Back'` | `aria-label` for the back button |
 | `duration` `stagger` `exitDuration` | `number` | `190` `24` `140` | see above |
 | `className` `style` | | | applied to the outer wrapper |
 | `ariaLabel` | `string` | `'Main'` | `aria-label` for the tablist |
@@ -136,9 +145,9 @@ going back staggers right → left, so the motion follows the gesture.
 | --- | --- | --- |
 | `id` | `string` | unique within its own level |
 | `label` | `string?` | omit for an icon-only tab |
-| `icon` | `ReactNode?` | inactive icon (outline variant) |
-| `activeIcon` | `ReactNode?` | active icon; cross-fades with `icon` over 170 ms |
-| `items` | `TabItem[]?` | **the opt-in** — makes this tab push a level |
+| `icon` | `ReactNode?` | inactive icon (usually the outline variant) |
+| `activeIcon` | `ReactNode?` | active icon; swaps with `icon` over 170 ms |
+| `items` | `TabItem[]?` | **the opt-in** — tapping this tab enters a sub level |
 | `badge` | `number \| string \| true` | `true` renders a bare dot |
 | `disabled` | `boolean?` | |
 | `ariaLabel` | `string?` | defaults to `label ?? id` |
@@ -163,7 +172,7 @@ Every visual is a CSS custom property on `.ctb-root`. Override them anywhere in 
   --ctb-shadow: 0 6px 24px rgba(0, 0, 0, 0.32);
   --ctb-fg: #f2f4f6;                       /* active icon + label */
   --ctb-fg-muted: #8b95a1;                 /* inactive */
-  --ctb-chip: rgba(255, 255, 255, 0.09);   /* back affordance background */
+  --ctb-chip: rgba(255, 255, 255, 0.09);   /* back button background */
   --ctb-press: rgba(255, 255, 255, 0.13);  /* press highlight */
   --ctb-accent: #3182f6;                   /* badge + focus ring */
   --ctb-radius: 26px;
@@ -180,8 +189,8 @@ The bar uses `backdrop-filter` with an opaque `@supports` fallback, and adds
 
 ## Accessibility
 
-- The visible row is a `role="tablist"` of `role="tab"` buttons with `aria-selected`; the outgoing
-  row is `aria-hidden` and untabbable while it fades.
+- The visible row is a `role="tablist"`; the buttons inside are `role="tab"` with `aria-selected`.
+  The leaving row is `aria-hidden` and untabbable while it fades.
 - Roving tabindex: <kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd> move focus,
   <kbd>Enter</kbd> / <kbd>Space</kbd> activate, <kbd>Esc</kbd> leaves a level.
 - The back affordance is a plain button, not a tab, and carries `aria-label`.
