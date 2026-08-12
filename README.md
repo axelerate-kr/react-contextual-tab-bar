@@ -3,7 +3,9 @@
 A bottom tab bar whose items **swap into a contextual sub-set** when you enter a section, with a back
 affordance taking the first slot. Zero runtime dependencies, ~4.5 kB gzipped (JS + CSS).
 
-![Root level, a sub level, and the same sub level in the light theme](docs/states.png)
+<img src="docs/demo.gif" width="400" alt="Tapping Library replaces the five root tabs with that section's own four and puts a back arrow in the first slot; tapping back restores the root row with Library still selected" />
+
+Recorded at real speed — the swap takes about 240 ms end to end.
 
 **[Live demo →](https://axelerate-kr.github.io/react-contextual-tab-bar/)**
 
@@ -142,6 +144,8 @@ Nesting is not limited to one level — a sub-tab can have `items` of its own, a
 accordingly.
 
 ## Theming
+
+![The root level, a sub level, and the same sub level with theme="light"](docs/states.png)
 
 Every visual is a CSS custom property on `.ctb-root`. Override them anywhere in your cascade:
 

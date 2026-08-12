@@ -346,8 +346,10 @@ export default function App() {
                   <span className="meta">{meta}</span>
                 </div>
               ))}
-              {screen.rows[lang].map(([label], index) => (
-                <div className="row skeleton" key={`${label}-skeleton-${index}`}>
+              {/* Filler rows so the list runs under the bar — that is what makes the
+                  bar's backdrop blur visible. */}
+              {Array.from({ length: screen.rows[lang].length + 4 }, (_, index) => (
+                <div className="row skeleton" key={`skeleton-${index}`}>
                   <span className="bar w-60" />
                   <span className="bar w-20" />
                 </div>
