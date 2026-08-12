@@ -352,20 +352,20 @@ const UI = {
       </>
     ),
     motion: '모션',
-    appearance: '외형',
+    appearance: '외관',
     state: '상태',
     events: '이벤트',
     clear: '지우기',
-    eventsEmpty: '탭을 누르면 onChange가 호출되는 것을 볼 수 있습니다.',
-    hintDuration: '항목 하나의 진입',
-    hintStagger: '항목마다 더해지는 지연, 앞쪽부터',
-    hintExit: '나가는 행의 페이드아웃',
+    eventsEmpty: '탭을 누르면 onChange 호출이 여기에 기록됩니다.',
+    hintDuration: '아이콘 하나가 나타나는 시간',
+    hintStagger: '아이콘이 하나씩 밀려 나타나는 간격',
+    hintExit: '이전 아이콘들이 사라지는 시간',
     reset: '기본값으로 되돌리기 (190 / 24 / 140)',
     usage: '사용법',
     keyboard: (
       <>
-        키보드: <kbd>←</kbd> <kbd>→</kbd> 포커스 이동, <kbd>Enter</kbd> 선택, <kbd>Esc</kbd> 레벨
-        나가기. <code>prefers-reduced-motion</code>에서는 stagger 없는 단순 페이드로 줄어듭니다.
+        키보드: <kbd>←</kbd> <kbd>→</kbd> 포커스 이동, <kbd>Enter</kbd> 선택, <kbd>Esc</kbd> 상위
+        레벨로. <code>prefers-reduced-motion</code>에서는 stagger 없는 단순 페이드로 줄어듭니다.
       </>
     ),
     footer: (
