@@ -59,6 +59,12 @@ kbd {
 
 /* ---------- hero ---------- */
 
+.langbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+}
+
 .eyebrow {
   margin: 0 0 14px;
   color: var(--fg-faint);

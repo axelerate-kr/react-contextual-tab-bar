@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ContextualTabBar, type ChangeMeta, type TabItem } from '../src'
 import {
   Broadcast,
@@ -277,6 +277,114 @@ interface LogEntry {
   text: string
 }
 
+const REPO = 'https://github.com/axelerate-kr/react-contextual-tab-bar'
+
+/** Page copy. The language switch drives the whole page, not just the tab labels. */
+const UI = {
+  en: {
+    switchTo: '한국어',
+    eyebrow: 'React · zero runtime deps · 4.5 kB gzipped (js + css)',
+    tagline: 'Toss-style bottom navigation for React',
+    taglineAlt: '토스 스타일 하단 네비게이션 바',
+    lede: (
+      <>
+        A bottom tab bar whose items <strong>swap into a sub-set</strong> when you enter a section,
+        with a back affordance in the first slot. The two rows cross-fade at their own layouts while
+        the incoming icons stagger in from the leading edge. Every animated tab-bar library moves the{' '}
+        <em>indicator</em> inside a fixed set of tabs — none of them change which tabs exist.
+      </>
+    ),
+    hint: (a: string, b: string) => (
+      <>
+        Tap <strong>{a}</strong> or <strong>{b}</strong> in the phone — those two have sub-levels.
+      </>
+    ),
+    motion: 'Motion',
+    appearance: 'Appearance',
+    state: 'State',
+    events: 'Events',
+    clear: 'clear',
+    eventsEmpty: 'Tap a tab to see onChange fire.',
+    hintDuration: 'per-item enter',
+    hintStagger: 'delay per item, leading edge first',
+    hintExit: 'outgoing row fade',
+    reset: 'Reset to defaults (190 / 24 / 140)',
+    usage: 'Usage',
+    keyboard: (
+      <>
+        Keyboard: <kbd>←</kbd> <kbd>→</kbd> move focus, <kbd>Enter</kbd> selects, <kbd>Esc</kbd>{' '}
+        leaves a level. <code>prefers-reduced-motion</code> collapses the transition to a plain fade.
+      </>
+    ),
+    footer: (
+      <>
+        Apache-2.0 ·{' '}
+        <a href={REPO} target="_blank" rel="noreferrer">
+          source
+        </a>{' '}
+        · the interaction pattern is one the{' '}
+        <a href="https://toss.im" target="_blank" rel="noreferrer">
+          Toss
+        </a>{' '}
+        app popularised; this implementation is independent and unaffiliated
+      </>
+    ),
+  },
+  ko: {
+    switchTo: 'English',
+    eyebrow: 'React · 런타임 의존성 없음 · gzip 4.5 kB (js + css)',
+    tagline: '리액트용 토스 스타일 하단 네비게이션 바',
+    taglineAlt: 'Toss-style bottom navigation for React',
+    lede: (
+      <>
+        섹션에 들어가면 <strong>네비게이션 바 자체가 그 섹션의 탭 구성으로 교체</strong>되고, 첫 칸에
+        뒤로가기가 들어옵니다. 두 행은 각자의 레이아웃을 유지한 채 크로스페이드하고, 들어오는 아이콘은
+        진행 방향 앞쪽부터 차례로 등장합니다. 애니메이션 탭바 라이브러리는 전부 고정된 탭 세트 안에서{' '}
+        <em>인디케이터</em>만 움직입니다 — 어느 것도 탭 구성 자체를 바꾸지 않습니다.
+      </>
+    ),
+    // "탭을" carries the particle so it stays correct whatever the labels are —
+    // attaching 을/를 directly to a variable label would need 받침 detection.
+    hint: (a: string, b: string) => (
+      <>
+        폰에서 <strong>{a}</strong> 또는 <strong>{b}</strong> 탭을 눌러보세요 — 이 둘만 하위 레벨이
+        있습니다.
+      </>
+    ),
+    motion: '모션',
+    appearance: '외형',
+    state: '상태',
+    events: '이벤트',
+    clear: '지우기',
+    eventsEmpty: '탭을 누르면 onChange가 호출되는 것을 볼 수 있습니다.',
+    hintDuration: '항목 하나의 진입',
+    hintStagger: '항목마다 더해지는 지연, 앞쪽부터',
+    hintExit: '나가는 행의 페이드아웃',
+    reset: '기본값으로 되돌리기 (190 / 24 / 140)',
+    usage: '사용법',
+    keyboard: (
+      <>
+        키보드: <kbd>←</kbd> <kbd>→</kbd> 포커스 이동, <kbd>Enter</kbd> 선택, <kbd>Esc</kbd> 레벨
+        나가기. <code>prefers-reduced-motion</code>에서는 stagger 없는 단순 페이드로 줄어듭니다.
+      </>
+    ),
+    footer: (
+      <>
+        Apache-2.0 ·{' '}
+        <a href={REPO} target="_blank" rel="noreferrer">
+          소스
+        </a>{' '}
+        · 이 인터랙션 패턴은{' '}
+        <a href="https://toss.im" target="_blank" rel="noreferrer">
+          토스
+        </a>{' '}
+        앱이 널리 퍼뜨린 것입니다. 이 구현은 독립적이며 제휴 관계가 없습니다
+      </>
+    ),
+  },
+} as const
+
+
 export default function App() {
   const [lang, setLang] = useState<Lang>('en')
   const [theme, setTheme] = useState<'auto' | 'dark' | 'light'>('dark')
@@ -289,9 +397,15 @@ export default function App() {
   const [path, setPath] = useState<string[]>([])
   const [log, setLog] = useState<LogEntry[]>([])
 
+  const t = UI[lang]
   const items = useMemo(() => buildItems(lang), [lang])
   const screen = SCREENS[value] ?? SCREENS.home
   const dark = theme === 'dark' || (theme === 'auto' && prefersDark())
+
+  // Keep the document language in step so screen readers pick the right voice.
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
 
   const push = (text: string) =>
     setLog((entries) => [{ id: entries.length, text }, ...entries].slice(0, 7))
@@ -303,40 +417,37 @@ export default function App() {
 
   return (
     <div className="page" data-dark={dark || undefined}>
+      <div className="langbar">
+        <div className="segmented" role="group" aria-label="Language / 언어">
+          <button type="button" lang="en" data-on={lang === 'en' || undefined} onClick={() => setLang('en')}>
+            English
+          </button>
+          <button type="button" lang="ko" data-on={lang === 'ko' || undefined} onClick={() => setLang('ko')}>
+            한국어
+          </button>
+        </div>
+      </div>
+
       <header className="hero">
-        <p className="eyebrow">React · zero runtime deps · 4.5 kB gzipped (js + css)</p>
+        <p className="eyebrow">{t.eyebrow}</p>
         <h1>
           contextual
           <br />
           tab bar
         </h1>
         <p className="tagline">
-          Toss-style bottom navigation for React
+          {t.tagline}
           <span aria-hidden="true"> · </span>
-          <span lang="ko">토스 스타일 하단 네비게이션 바</span>
+          <span lang={lang === 'en' ? 'ko' : 'en'}>{t.taglineAlt}</span>
         </p>
-        <p className="lede">
-          A bottom tab bar whose items <strong>swap into a sub-set</strong> when you enter a
-          section, with a back affordance in the first slot. The two rows cross-fade at their own
-          layouts while the incoming icons stagger in from the leading edge. Every animated tab-bar
-          library moves the <em>indicator</em> inside a fixed set of tabs — none of them change
-          which tabs exist.
-        </p>
+        <p className="lede">{t.lede}</p>
         <div className="cta">
           <code>npm i react-contextual-tab-bar</code>
-          <a
-            className="ghost"
-            href="https://github.com/axelerate-kr/react-contextual-tab-bar"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a className="ghost" href={REPO} target="_blank" rel="noreferrer">
             GitHub
           </a>
         </div>
-        <p className="hint">
-          Tap <strong>{L.browse[lang]}</strong> or <strong>{L.library[lang]}</strong> in the phone —
-          those two have sub-levels.
-        </p>
+        <p className="hint">{t.hint(L.browse[lang], L.library[lang])}</p>
       </header>
 
       <main className="stage">
@@ -383,10 +494,10 @@ export default function App() {
 
         <aside className="panel">
           <section>
-            <h3>Motion</h3>
+            <h3>{t.motion}</h3>
             <Slider
               label="duration"
-              hint="per-item enter"
+              hint={t.hintDuration}
               value={duration}
               min={0}
               max={600}
@@ -395,7 +506,7 @@ export default function App() {
             />
             <Slider
               label="stagger"
-              hint="delay per item, leading edge first"
+              hint={t.hintStagger}
               value={stagger}
               min={0}
               max={120}
@@ -404,7 +515,7 @@ export default function App() {
             />
             <Slider
               label="exitDuration"
-              hint="outgoing row fade"
+              hint={t.hintExit}
               value={exitDuration}
               min={0}
               max={600}
@@ -420,12 +531,13 @@ export default function App() {
                 setExitDuration(140)
               }}
             >
-              Reset to defaults (190 / 24 / 140)
+              {t.reset}
             </button>
           </section>
 
           <section>
-            <h3>Appearance</h3>
+            <h3>{t.appearance}</h3>
+            {/* These stay in English — they are the prop values you would type. */}
             <Choice
               label="theme"
               options={['dark', 'light', 'auto']}
@@ -438,16 +550,10 @@ export default function App() {
               value={variant}
               onChange={(next) => setVariant(next as typeof variant)}
             />
-            <Choice
-              label="labels"
-              options={['en', 'ko']}
-              value={lang}
-              onChange={(next) => setLang(next as Lang)}
-            />
           </section>
 
           <section>
-            <h3>State</h3>
+            <h3>{t.state}</h3>
             <pre className="state">
               {`value: ${JSON.stringify(value)}\npath:  ${JSON.stringify(path)}`}
             </pre>
@@ -455,10 +561,10 @@ export default function App() {
 
           <section>
             <h3>
-              Events
+              {t.events}
               {log.length ? (
                 <button className="clear" type="button" onClick={() => setLog([])}>
-                  clear
+                  {t.clear}
                 </button>
               ) : null}
             </h3>
@@ -466,7 +572,7 @@ export default function App() {
               {log.length ? (
                 log.map((entry) => <li key={entry.id}>{entry.text}</li>)
               ) : (
-                <li className="empty">Tap a tab to see onChange fire.</li>
+                <li className="empty">{t.eventsEmpty}</li>
               )}
             </ul>
           </section>
@@ -474,35 +580,17 @@ export default function App() {
       </main>
 
       <section className="usage">
-        <h3>Usage</h3>
-        <pre>{USAGE}</pre>
-        <p className="hint">
-          Keyboard: <kbd>←</kbd> <kbd>→</kbd> move focus, <kbd>Enter</kbd> selects,{' '}
-          <kbd>Esc</kbd> leaves a level. <code>prefers-reduced-motion</code> collapses the
-          transition to a plain fade.
-        </p>
+        <h3>{t.usage}</h3>
+        <pre>{lang === 'ko' ? USAGE_KO : USAGE_EN}</pre>
+        <p className="hint">{t.keyboard}</p>
       </section>
 
-      <footer>
-        MIT ·{' '}
-        <a
-          href="https://github.com/axelerate-kr/react-contextual-tab-bar"
-          target="_blank"
-          rel="noreferrer"
-        >
-          source
-        </a>{' '}
-        · the interaction pattern is one the{' '}
-        <a href="https://toss.im" target="_blank" rel="noreferrer">
-          Toss
-        </a>{' '}
-        app popularised; this implementation is independent and unaffiliated
-      </footer>
+      <footer>{t.footer}</footer>
     </div>
   )
 }
 
-const USAGE = `import { ContextualTabBar } from 'react-contextual-tab-bar'
+const USAGE_EN = `import { ContextualTabBar } from 'react-contextual-tab-bar'
 import 'react-contextual-tab-bar/styles.css'
 
 const items = [
@@ -517,6 +605,31 @@ const items = [
       { id: 'library.offline', label: 'Offline', icon: <Download />, badge: 3 },
     ] },
   { id: 'profile', label: 'Profile', icon: <Person /> },
+]
+
+<ContextualTabBar
+  items={items}
+  value={value}
+  onChange={(id, { reason, path }) => setValue(id)}
+  onEnterSub={(id) => router.push(\`/\${id}\`)}
+  onBack={() => router.back()}
+/>`
+
+const USAGE_KO = `import { ContextualTabBar } from 'react-contextual-tab-bar'
+import 'react-contextual-tab-bar/styles.css'
+
+const items = [
+  { id: 'home',  label: '홈',    icon: <Home />,    activeIcon: <Home filled /> },
+  { id: 'radio', label: '라디오', icon: <Broadcast /> },
+  { id: 'library', label: '보관함', icon: <Grid />,
+    // 탭에 \`items\`를 주면 그 탭을 누를 때 바가 교체된다
+    items: [
+      { id: 'library.home',    label: '보관함',  icon: <Grid /> },
+      { id: 'library.songs',   label: '곡',      icon: <Playlist /> },
+      { id: 'library.artists', label: '아티스트', icon: <Mic /> },
+      { id: 'library.offline', label: '오프라인', icon: <Download />, badge: 3 },
+    ] },
+  { id: 'profile', label: '프로필', icon: <Person /> },
 ]
 
 <ContextualTabBar
@@ -595,7 +708,6 @@ function Choice({
 
 function prefersDark() {
   return (
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
   )
 }
