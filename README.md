@@ -1,7 +1,10 @@
 # react-contextual-tab-bar
 
-A bottom tab bar whose items **swap into a contextual sub-set** when you enter a section, with a back
-affordance taking the first slot. Zero runtime dependencies, ~4.5 kB gzipped (JS + CSS).
+**A Toss-style bottom navigation bar for React.** Tapping a tab swaps the whole bar into that
+section's own tabs, with a back arrow where the first tab used to be. Zero runtime dependencies,
+~4.5 kB gzipped (JS + CSS).
+
+[한국어 README →](README_ko.md)
 
 <img src="docs/demo.gif" width="400" alt="Tapping Library replaces the five root tabs with that section's own four and puts a back arrow in the first slot; tapping back restores the root row with Library still selected" />
 
@@ -143,6 +146,9 @@ going back staggers right → left, so the motion follows the gesture.
 Nesting is not limited to one level — a sub-tab can have `items` of its own, and `path` grows
 accordingly.
 
+Keep labels short. A tab slot is narrow, so English labels much past 8 characters ellipsize (CJK is
+comfortable to about 4).
+
 ## Theming
 
 ![The root level, a sub level, and the same sub level with theme="light"](docs/states.png)
@@ -182,6 +188,18 @@ The bar uses `backdrop-filter` with an opaque `@supports` fallback, and adds
 - Entering a level announces the section name through a polite live region.
 - `prefers-reduced-motion` is honoured.
 
+## Also known as
+
+If you arrived here searching for any of these, this is the component you wanted:
+
+**English** — Toss-style bottom navigation bar · Toss tab bar · contextual bottom navigation ·
+nested bottom tabs · sub-tabs inside a tab bar · morphing tab bar · animated bottom navigation ·
+bottom bar that swaps its tabs · drill-down tab bar · React bottom nav with back button
+
+**한국어** — 토스 스타일 하단 네비게이션 바 · 토스 네비게이션바 · 토스 하단바 · 토스처럼 탭 누르면
+바뀌는 네비게이션 바 · 하단 네비게이션 전환 애니메이션 · 바텀 네비게이션 · 서브 탭바 ·
+리액트 하단바 · 뒤로가기 버튼 있는 하단 네비게이션
+
 ## Development
 
 ```sh
@@ -194,5 +212,10 @@ npm run build:lib  # package → dist
 
 ## License
 
-MIT. The interaction pattern was observed in the Toss app; this implementation is independent and
-unaffiliated.
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+The interaction pattern was popularised by the Toss app. This implementation is independent, written
+from observed behaviour, and contains no code or design assets from that application; it is not
+affiliated with or endorsed by its publisher. "Toss" appears in this project's documentation and
+package metadata only to describe the pattern, so that people looking for it can find this
+component.

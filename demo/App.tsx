@@ -310,6 +310,11 @@ export default function App() {
           <br />
           tab bar
         </h1>
+        <p className="tagline">
+          Toss-style bottom navigation for React
+          <span aria-hidden="true"> · </span>
+          <span lang="ko">토스 스타일 하단 네비게이션 바</span>
+        </p>
         <p className="lede">
           A bottom tab bar whose items <strong>swap into a sub-set</strong> when you enter a
           section, with a back affordance in the first slot. The two rows cross-fade at their own

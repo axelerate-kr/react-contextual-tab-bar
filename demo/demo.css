@@ -76,6 +76,18 @@ kbd {
   letter-spacing: -0.045em;
 }
 
+.tagline {
+  margin: -8px 0 18px;
+  color: var(--fg);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.tagline span[lang='ko'] {
+  color: var(--fg-dim);
+}
+
 .lede {
   max-width: 62ch;
   margin: 0 0 26px;

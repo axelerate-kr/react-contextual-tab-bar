@@ -1,0 +1,15 @@
+react-contextual-tab-bar
+Copyright 2026 axelerate
+
+Licensed under the Apache License, Version 2.0. See the LICENSE file.
+
+---
+
+The bottom-navigation interaction pattern implemented here was popularised by the
+Toss mobile app. This project is an independent implementation written from
+observed behaviour; it contains no code, design assets, or other material from
+that application, and it is not affiliated with or endorsed by its publisher.
+
+"Toss" is a trademark of its respective owner and is referenced in this project's
+documentation and package metadata only to describe the interaction pattern, so
+that people looking for this pattern can find the component.
