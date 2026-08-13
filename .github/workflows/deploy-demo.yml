@@ -27,7 +27,11 @@ jobs:
       - run: npm run typecheck
       - run: npm run build:lib
       - run: npm run build
+      # enablement creates the Pages site on the first run, so the deploy does not
+      # fail waiting for someone to switch it on in Settings.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-demo
